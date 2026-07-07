@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "223661514233",
+    "project_id": "redesocial-bf77a",
+    "storage_bucket": "redesocial-bf77a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223661514233:android:6dcfe182bb2d65c6153128",
+        "android_client_info": {
+          "package_name": "com.example.redesocial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtk9UvuB7JT2JUgQGo8fzvuscnZrN8dHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
