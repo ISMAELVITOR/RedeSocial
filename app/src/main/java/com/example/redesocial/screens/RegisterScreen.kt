@@ -163,7 +163,8 @@ fun RegisterScreen(navController: NavController) {
                                     uid = uid,
                                     name = safeName,
                                     email = safeEmail,
-                                    birthDate = safeBirthDate
+                                    birthDate = safeBirthDate,
+                                    profileImageBase64 = ""
                                 )
 
                                 FirebaseConfig.firestore

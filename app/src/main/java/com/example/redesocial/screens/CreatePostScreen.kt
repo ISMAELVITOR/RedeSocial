@@ -105,25 +105,12 @@ fun CreatePostScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
 
-                Text(
-                    text = "Escreva sua publicacao, escolha uma imagem se quiser e publique.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-
-                OutlinedTextField(
-                    value = postText,
-                    onValueChange = { postText = it },
-                    label = { Text("Escreva sua publicacao") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 4
-                )
 
                 Button(
                     onClick = { launcher.launch("image/*") },
@@ -157,6 +144,14 @@ fun CreatePostScreen(navController: NavController) {
                     }
                 }
 
+                OutlinedTextField(
+                    value = postText,
+                    onValueChange = { postText = it },
+                    label = { Text("Escreva sua descricao") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4
+                )
+
                 Spacer(modifier = Modifier.weight(1f))
 
                 Row(
@@ -181,7 +176,8 @@ fun CreatePostScreen(navController: NavController) {
                                 authorUid = user?.uid.orEmpty(),
                                 userName = user?.email ?: "Usuario",
                                 text = safeText,
-                                imageBase64 = imageBase64
+                                imageBase64 = imageBase64,
+                                createdAt = System.currentTimeMillis()
                             )
 
                             FirebaseConfig.firestore

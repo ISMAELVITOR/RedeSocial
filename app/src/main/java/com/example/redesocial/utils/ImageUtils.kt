@@ -41,4 +41,14 @@ object ImageUtils {
             decodedBytes.size
         )
     }
+
+    fun base64ToBitmapOrNull(base64: String): Bitmap? {
+        if (base64.isBlank()) {
+            return null
+        }
+
+        return runCatching {
+            base64ToBitmap(base64)
+        }.getOrNull()
+    }
 }

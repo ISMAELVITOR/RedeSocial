@@ -40,13 +40,13 @@ fun FeedScreen(navController: NavController) {
     var posts by remember { mutableStateOf(listOf<Post>()) }
 
     LaunchedEffect(Unit) {
-        FirebaseConfig.firestore
+            FirebaseConfig.firestore
             .collection("posts")
             .addSnapshotListener { value, _ ->
                 if (value != null) {
-                    posts = value.documents.mapNotNull {
-                        it.toObject(Post::class.java)
-                    }
+                    posts = value.documents
+                        .mapNotNull { it.toObject(Post::class.java) }
+                        .sortedByDescending { it.createdAt }
                 }
             }
     }
