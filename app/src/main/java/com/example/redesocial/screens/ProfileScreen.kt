@@ -1,7 +1,6 @@
 package com.example.redesocial.screens
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,7 +47,6 @@ import com.example.redesocial.utils.ImageUtils
 import com.example.redesocial.utils.formatBirthDate
 import com.example.redesocial.utils.onlyDigits
 import com.example.redesocial.viewmodel.ProfileViewModel
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
@@ -75,20 +73,11 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
 
-        runCatching {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            }
-        }.getOrNull()?.let { bitmap ->
-            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 800, 800, true)
+        ImageUtils.loadBitmapFromUri(context, uri)?.let { bitmap ->
+            val scaledBitmap = ImageUtils.resizeKeepingAspectRatio(bitmap, 800)
             previewBitmap = scaledBitmap
 
-            val outputStream = ByteArrayOutputStream()
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-            profileImageBase64 = android.util.Base64.encodeToString(
-                outputStream.toByteArray(),
-                android.util.Base64.NO_WRAP
-            )
+            profileImageBase64 = ImageUtils.bitmapToBase64Jpeg(scaledBitmap, 70)
         }
     }
 

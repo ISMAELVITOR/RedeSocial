@@ -17,8 +17,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.redesocial.utils.ImageUtils
 import com.example.redesocial.viewmodel.CreatePostViewModel
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun CreatePostScreen(navController: NavController, viewModel: CreatePostViewModel = viewModel()) {
@@ -32,20 +32,11 @@ fun CreatePostScreen(navController: NavController, viewModel: CreatePostViewMode
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
 
-        runCatching {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            }
-        }.getOrNull()?.let { bitmap ->
-            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 800, 800, true)
+        ImageUtils.loadBitmapFromUri(context, uri)?.let { bitmap ->
+            val scaledBitmap = ImageUtils.resizeKeepingAspectRatio(bitmap, 1280)
             selectedBitmap = scaledBitmap
 
-            val outputStream = ByteArrayOutputStream()
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-            imageBase64 = android.util.Base64.encodeToString(
-                outputStream.toByteArray(),
-                android.util.Base64.NO_WRAP
-            )
+            imageBase64 = ImageUtils.bitmapToBase64Jpeg(scaledBitmap, 88)
         }
     }
 

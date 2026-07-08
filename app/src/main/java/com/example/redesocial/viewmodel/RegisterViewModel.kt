@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.redesocial.firebase.FirebaseConfig
 import com.example.redesocial.model.User
+import com.example.redesocial.utils.onlyDigits
 
 class RegisterViewModel : ViewModel() {
     var name by mutableStateOf("")
@@ -30,5 +31,3 @@ class RegisterViewModel : ViewModel() {
             }
     }
 }
-
-private fun String.onlyDigits(): String = filter { it.isDigit() }
