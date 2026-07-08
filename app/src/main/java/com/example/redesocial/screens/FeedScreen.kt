@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -73,10 +75,11 @@ fun FeedScreen(navController: NavController, viewModel: FeedViewModel = viewMode
             items(viewModel.posts) { post ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val authorBitmap = ImageUtils.base64ToBitmapOrNull(post.authorProfileImageBase64)
 
@@ -85,14 +88,14 @@ fun FeedScreen(navController: NavController, viewModel: FeedViewModel = viewMode
                                     bitmap = authorBitmap.asImageBitmap(),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(44.dp)
+                                        .size(48.dp)
                                         .clip(CircleShape),
                                     contentScale = ContentScale.Crop
                                 )
                             } else {
                                 Surface(
                                     modifier = Modifier
-                                        .size(44.dp)
+                                        .size(48.dp)
                                         .clip(CircleShape),
                                     color = MaterialTheme.colorScheme.primaryContainer
                                 ) {
@@ -106,7 +109,7 @@ fun FeedScreen(navController: NavController, viewModel: FeedViewModel = viewMode
                                 }
                             }
 
-                            Spacer(Modifier.width(12.dp))
+                            Spacer(Modifier.width(14.dp))
 
                             Text(
                                 text = post.authorName,
@@ -115,19 +118,25 @@ fun FeedScreen(navController: NavController, viewModel: FeedViewModel = viewMode
                             )
                         }
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(14.dp))
 
-                        Text(post.text)
+                        Text(
+                            text = post.text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            lineHeight = 22.sp
+                        )
 
                         if (post.imageBase64.isNotEmpty()) {
-                            Spacer(Modifier.height(12.dp))
+                            Spacer(Modifier.height(14.dp))
                             ImageUtils.base64ToBitmapOrNull(post.imageBase64)?.let {
+                                val aspectRatio = it.width.toFloat() / it.height.toFloat()
                                 Image(
                                     bitmap = it.asImageBitmap(),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(200.dp),
+                                        .heightIn(min = 180.dp)
+                                        .aspectRatio(aspectRatio),
                                     contentScale = ContentScale.Crop
                                 )
                             }

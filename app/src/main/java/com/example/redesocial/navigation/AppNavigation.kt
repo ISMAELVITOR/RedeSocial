@@ -58,7 +58,7 @@ fun AppNavigation(navController: NavHostController, startDestination: String) {
             composable("register") { RegisterScreen(navController) }
             composable("feed") { FeedScreen(navController) }
             composable("createPost") { CreatePostScreen(navController) }
-            composable("profile") { ProfileScreen(navController) }
+            composable("profile") { ProfileScreen() }
         }
     }
 }

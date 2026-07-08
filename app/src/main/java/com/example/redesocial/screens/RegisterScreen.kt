@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.redesocial.utils.DateMaskVisualTransformation
+import com.example.redesocial.utils.onlyDigits
 import com.example.redesocial.viewmodel.RegisterViewModel
 
 @Composable
@@ -84,6 +86,26 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = 
                     )
                 )
                 
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = viewModel.birthDate,
+                    onValueChange = { viewModel.birthDate = it.onlyDigits().take(8) },
+                    label = { Text("Data de nascimento") },
+                    placeholder = { Text("DD/MM/AAAA") },
+                    visualTransformation = DateMaskVisualTransformation,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+
                 Spacer(Modifier.height(16.dp))
                 
                 OutlinedTextField(

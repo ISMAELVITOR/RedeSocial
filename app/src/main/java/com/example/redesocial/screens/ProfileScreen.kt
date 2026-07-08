@@ -40,24 +40,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import com.example.redesocial.utils.DateMaskVisualTransformation
 import com.example.redesocial.utils.ImageUtils
+import com.example.redesocial.utils.formatBirthDate
+import com.example.redesocial.utils.onlyDigits
 import com.example.redesocial.viewmodel.ProfileViewModel
 import java.io.ByteArrayOutputStream
 
 @Composable
-fun ProfileScreen(
-    navController: NavController,
-    viewModel: ProfileViewModel = viewModel()
-) {
+fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
     val user = viewModel.userProfile
     val context = LocalContext.current
 
@@ -112,13 +106,7 @@ fun ProfileScreen(
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(Modifier.height(16.dp))
-
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text("Voltar")
-        }
-
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
 
         if (user == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -282,44 +270,5 @@ fun ProfileScreen(
                 Text("Editar perfil")
             }
         }
-    }
-}
-
-private fun String.onlyDigits(): String = filter { it.isDigit() }
-
-private fun formatBirthDate(value: String): String {
-    val digits = value.onlyDigits().take(8)
-    if (digits.isBlank()) return value
-
-    return buildString {
-        digits.forEachIndexed { index, char ->
-            if (index == 2 || index == 4) append('/')
-            append(char)
-        }
-    }
-}
-
-private object DateMaskVisualTransformation : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val digits = text.text.onlyDigits().take(8)
-        val formatted = formatBirthDate(digits)
-
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = when {
-                offset <= 2 -> offset
-                offset <= 4 -> offset + 1
-                offset <= 8 -> offset + 2
-                else -> formatted.length
-            }
-
-            override fun transformedToOriginal(offset: Int): Int = when {
-                offset <= 2 -> offset
-                offset <= 5 -> offset - 1
-                offset <= 10 -> offset - 2
-                else -> 8
-            }.coerceIn(0, digits.length)
-        }
-
-        return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }

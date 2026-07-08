@@ -9,6 +9,7 @@ class RegisterViewModel : ViewModel() {
     var name by mutableStateOf("")
     var email by mutableStateOf("")
     var password by mutableStateOf("")
+    var birthDate by mutableStateOf("")
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf("")
 
@@ -16,7 +17,7 @@ class RegisterViewModel : ViewModel() {
         isLoading = true
         FirebaseConfig.auth.createUserWithEmailAndPassword(email.trim(), password.trim())
             .addOnSuccessListener { auth ->
-                val user = User(auth.user?.uid ?: "", name, email)
+                val user = User(auth.user?.uid ?: "", name, email, birthDate.onlyDigits().take(8))
                 FirebaseConfig.firestore.collection("users").document(user.uid).set(user)
                     .addOnSuccessListener { 
                         isLoading = false
@@ -29,3 +30,5 @@ class RegisterViewModel : ViewModel() {
             }
     }
 }
+
+private fun String.onlyDigits(): String = filter { it.isDigit() }
