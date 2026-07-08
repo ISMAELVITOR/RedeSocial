@@ -3,5 +3,7 @@ package com.example.redesocial.model
 data class User(
     val uid: String = "",
     val name: String = "",
-    val email: String = ""
+    val email: String = "",
+    val birthDate: String = "",
+    val profileImageBase64: String = ""
 )
