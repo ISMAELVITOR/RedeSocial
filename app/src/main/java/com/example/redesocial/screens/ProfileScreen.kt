@@ -40,6 +40,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +70,7 @@ fun ProfileScreen(
     LaunchedEffect(user) {
         user?.let {
             name = it.name
-            birthDate = it.birthDate
+            birthDate = it.birthDate.onlyDigits().take(8)
             profileImageBase64 = it.profileImageBase64
             previewBitmap = ImageUtils.base64ToBitmapOrNull(it.profileImageBase64)
         }
@@ -173,11 +177,12 @@ fun ProfileScreen(
 
             OutlinedTextField(
                 value = birthDate,
-                onValueChange = { birthDate = it },
+                onValueChange = { birthDate = it.onlyDigits().take(8) },
                 label = { Text("Data de nascimento") },
                 placeholder = { Text("DD/MM/AAAA") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
+                visualTransformation = DateMaskVisualTransformation,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
                     unfocusedTextColor = MaterialTheme.colorScheme.onSurface
@@ -240,19 +245,23 @@ fun ProfileScreen(
 
                     Spacer(Modifier.height(16.dp))
 
-                    Text("Nome", style = MaterialTheme.typography.labelMedium)
+                    Text("nome:", style = MaterialTheme.typography.labelMedium)
                     Text(user.name, style = MaterialTheme.typography.bodyLarge)
 
                     Spacer(Modifier.height(12.dp))
 
-                    Text("Email", style = MaterialTheme.typography.labelMedium)
+                    Text("email:", style = MaterialTheme.typography.labelMedium)
                     Text(user.email, style = MaterialTheme.typography.bodyLarge)
 
                     Spacer(Modifier.height(12.dp))
 
-                    Text("Data de nascimento", style = MaterialTheme.typography.labelMedium)
+                    Text("data de nascimento:", style = MaterialTheme.typography.labelMedium)
                     Text(
-                        if (user.birthDate.isBlank()) "Nao informada" else user.birthDate,
+                        if (user.birthDate.isBlank()) {
+                            "Nao informada"
+                        } else {
+                            formatBirthDate(user.birthDate)
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -264,7 +273,7 @@ fun ProfileScreen(
                 onClick = {
                     isEditing = true
                     name = user.name
-                    birthDate = user.birthDate
+                    birthDate = user.birthDate.onlyDigits().take(8)
                     profileImageBase64 = user.profileImageBase64
                     previewBitmap = ImageUtils.base64ToBitmapOrNull(user.profileImageBase64)
                 },
@@ -273,5 +282,44 @@ fun ProfileScreen(
                 Text("Editar perfil")
             }
         }
+    }
+}
+
+private fun String.onlyDigits(): String = filter { it.isDigit() }
+
+private fun formatBirthDate(value: String): String {
+    val digits = value.onlyDigits().take(8)
+    if (digits.isBlank()) return value
+
+    return buildString {
+        digits.forEachIndexed { index, char ->
+            if (index == 2 || index == 4) append('/')
+            append(char)
+        }
+    }
+}
+
+private object DateMaskVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val digits = text.text.onlyDigits().take(8)
+        val formatted = formatBirthDate(digits)
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = when {
+                offset <= 2 -> offset
+                offset <= 4 -> offset + 1
+                offset <= 8 -> offset + 2
+                else -> formatted.length
+            }
+
+            override fun transformedToOriginal(offset: Int): Int = when {
+                offset <= 2 -> offset
+                offset <= 5 -> offset - 1
+                offset <= 10 -> offset - 2
+                else -> 8
+            }.coerceIn(0, digits.length)
+        }
+
+        return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }
