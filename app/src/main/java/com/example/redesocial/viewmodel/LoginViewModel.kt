@@ -1,8 +1,6 @@
 package com.example.redesocial.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.redesocial.firebase.FirebaseConfig
 
@@ -13,26 +11,19 @@ class LoginViewModel : ViewModel() {
     var errorMessage by mutableStateOf("")
 
     fun onLoginClick(onSuccess: () -> Unit) {
-        val safeEmail = email.trim()
-        val safePassword = password.trim()
-
-        if (safeEmail.isBlank() || safePassword.isBlank()) {
-            errorMessage = "Preencha email e senha."
+        if (email.isBlank() || password.isBlank()) {
+            errorMessage = "Preencha tudo"
             return
         }
-
         isLoading = true
-        errorMessage = ""
-
-        FirebaseConfig.auth
-            .signInWithEmailAndPassword(safeEmail, safePassword)
+        FirebaseConfig.auth.signInWithEmailAndPassword(email.trim(), password.trim())
             .addOnSuccessListener {
                 isLoading = false
                 onSuccess()
             }
             .addOnFailureListener {
                 isLoading = false
-                errorMessage = it.localizedMessage ?: "Não foi possível entrar."
+                errorMessage = "Erro ao entrar"
             }
     }
 }
