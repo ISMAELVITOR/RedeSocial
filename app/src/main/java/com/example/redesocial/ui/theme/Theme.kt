@@ -6,37 +6,44 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Cyan500,
-    onPrimary = Indigo950,
-    primaryContainer = Indigo900,
-    onPrimaryContainer = Slate50,
-    secondary = Emerald500,
-    onSecondary = Indigo950,
-    tertiary = Amber500,
-    onTertiary = Indigo950,
-    background = Indigo950,
-    onBackground = Slate50,
-    surface = Slate800,
-    onSurface = Slate50,
-    surfaceVariant = Slate700,
-    onSurfaceVariant = Slate100
+
+    primary = DarkPrimary,
+    onPrimary = DarkBackground,
+
+    background = DarkBackground,
+    onBackground = DarkText,
+
+    surface = DarkSurface,
+    onSurface = DarkText,
+
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkTextSecondary,
+
+    secondary = Primary,
+    tertiary = Success,
+    error = Error
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Blue700,
-    onPrimary = Slate50,
-    primaryContainer = Slate100,
-    onPrimaryContainer = Indigo950,
-    secondary = Cyan500,
-    onSecondary = Indigo950,
-    tertiary = Rose500,
-    onTertiary = Slate50,
-    background = Slate50,
-    onBackground = Indigo950,
-    surface = Slate50,
-    onSurface = Indigo950,
-    surfaceVariant = Slate100,
-    onSurfaceVariant = Slate700
+
+    primary = Primary,
+    onPrimary = Surface,
+
+    primaryContainer = PrimaryLight,
+    onPrimaryContainer = TextPrimary,
+
+    background = Background,
+    onBackground = TextPrimary,
+
+    surface = Surface,
+    onSurface = TextPrimary,
+
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = TextSecondary,
+
+    secondary = PrimaryDark,
+    tertiary = Success,
+    error = Error
 )
 
 @Composable
@@ -45,7 +52,10 @@ fun RedeSocialTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    val colorScheme =
+        if (darkTheme) DarkColorScheme
+        else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

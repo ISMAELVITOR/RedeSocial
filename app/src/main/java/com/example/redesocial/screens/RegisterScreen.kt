@@ -1,208 +1,104 @@
 package com.example.redesocial.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.redesocial.firebase.FirebaseConfig
-import com.example.redesocial.model.User
-import com.example.redesocial.ui.theme.Blue700
-import com.example.redesocial.ui.theme.Cyan500
-import com.example.redesocial.ui.theme.Indigo950
+import com.example.redesocial.viewmodel.RegisterViewModel
 
 @Composable
-fun RegisterScreen(navController: NavController) {
-
-    var name by remember {
-        mutableStateOf("")
-    }
-
-    var email by remember {
-        mutableStateOf("")
-    }
-
-    var birthDate by remember {
-        mutableStateOf("")
-    }
-
-    var password by remember {
-        mutableStateOf("")
-    }
-
-    var loading by remember {
-        mutableStateOf(false)
-    }
-
-    var errorMessage by remember {
-        mutableStateOf("")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Indigo950,
-                        Blue700,
-                        Cyan500
-                    )
-                )
-            )
-            .padding(20.dp)
-    ) {
-        Card(
+fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = viewModel()) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(
             modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                .fillMaxSize()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Text(
+                text = "Criar Conta",
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
+            Text("Junte-se à nossa comunidade", style = MaterialTheme.typography.bodyLarge)
+
+            Spacer(Modifier.height(32.dp))
+
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
-                Text(
-                    text = "Criar conta",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Text(
-                    text = "Cadastre-se para participar da rede.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = birthDate,
-                    onValueChange = { birthDate = it },
-                    label = { Text("Data de nascimento") },
-                    placeholder = { Text("dd/mm/aaaa") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Senha") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (errorMessage.isNotBlank()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error
+                Column(
+                    modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = viewModel.name,
+                        onValueChange = { viewModel.name = it },
+                        label = { Text("Nome Completo") },
+                        modifier = Modifier.fillMaxWidth()
                     )
+
+                    OutlinedTextField(
+                        value = viewModel.email,
+                        onValueChange = { viewModel.email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = viewModel.birthDate,
+                        onValueChange = { viewModel.birthDate = it },
+                        label = { Text("Data de Nascimento") },
+                        placeholder = { Text("dd/mm/aaaa") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = viewModel.password,
+                        onValueChange = { viewModel.password = it },
+                        label = { Text("Senha") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (viewModel.errorMessage.isNotBlank()) {
+                        Text(viewModel.errorMessage, color = MaterialTheme.colorScheme.error)
+                    }
+
+                    Button(
+                        onClick = { 
+                            viewModel.onRegisterClick { 
+                                navController.navigate("feed") { 
+                                    popUpTo("login") { inclusive = true } 
+                                } 
+                            } 
+                        },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        enabled = !viewModel.isLoading
+                    ) {
+                        Text(if (viewModel.isLoading) "Cadastrando..." else "Cadastrar")
+                    }
                 }
+            }
 
-                Button(
-                    enabled = !loading,
-                    onClick = {
-                        val safeName = name.trim()
-                        val safeEmail = email.trim()
-                        val safeBirthDate = birthDate.trim()
-                        val safePassword = password.trim()
+            Spacer(Modifier.height(24.dp))
 
-                        if (safeName.isBlank() || safeEmail.isBlank() || safeBirthDate.isBlank() || safePassword.isBlank()) {
-                            errorMessage = "Preencha nome, email, data de nascimento e senha."
-                            return@Button
-                        }
-
-                        loading = true
-                        errorMessage = ""
-
-                        FirebaseConfig.auth
-                            .createUserWithEmailAndPassword(safeEmail, safePassword)
-                            .addOnSuccessListener {
-                                val uid = FirebaseConfig.auth.currentUser?.uid.orEmpty()
-
-                                if (uid.isBlank()) {
-                                    loading = false
-                                    errorMessage = "Nao foi possivel identificar o usuario criado."
-                                    return@addOnSuccessListener
-                                }
-
-                                val user = User(
-                                    uid = uid,
-                                    name = safeName,
-                                    email = safeEmail,
-                                    birthDate = safeBirthDate,
-                                    profileImageBase64 = ""
-                                )
-
-                                FirebaseConfig.firestore
-                                    .collection("users")
-                                    .document(uid)
-                                    .set(user)
-                                    .addOnSuccessListener {
-                                        loading = false
-                                        navController.navigate("feed") {
-                                            popUpTo("login") {
-                                                inclusive = true
-                                            }
-                                        }
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        loading = false
-                                        errorMessage = exception.localizedMessage
-                                            ?: "Erro ao salvar o perfil."
-                                    }
-                            }
-                            .addOnFailureListener { exception ->
-                                loading = false
-                                errorMessage = exception.localizedMessage ?: "Erro ao cadastrar."
-                            }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = if (loading) "Cadastrando..." else "Cadastrar")
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("login")
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Já tenho conta")
-                }
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Já tem uma conta? Voltar ao login")
             }
         }
     }

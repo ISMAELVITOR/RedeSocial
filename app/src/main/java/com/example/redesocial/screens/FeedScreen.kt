@@ -2,142 +2,84 @@ package com.example.redesocial.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.redesocial.firebase.FirebaseConfig
 import com.example.redesocial.model.Post
-import com.example.redesocial.ui.theme.Blue700
-import com.example.redesocial.ui.theme.Cyan500
-import com.example.redesocial.ui.theme.Indigo950
-import com.example.redesocial.ui.theme.Slate100
 import com.example.redesocial.utils.ImageUtils
+import com.example.redesocial.viewmodel.FeedViewModel
 
 @Composable
-fun FeedScreen(navController: NavController) {
-    var posts by remember { mutableStateOf(listOf<Post>()) }
+fun FeedScreen(navController: NavController, viewModel: FeedViewModel = viewModel()) {
+    val posts = viewModel.posts
 
-    LaunchedEffect(Unit) {
-            FirebaseConfig.firestore
-            .collection("posts")
-            .addSnapshotListener { value, _ ->
-                if (value != null) {
-                    posts = value.documents
-                        .mapNotNull { it.toObject(Post::class.java) }
-                        .sortedByDescending { it.createdAt }
-                }
+    Scaffold(
+        topBar = {
+            Column(Modifier.padding(16.dp)) {
+                Text("LinkUp", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text("Feed da comunidade", style = MaterialTheme.typography.bodyMedium)
             }
+        }
+    ) { padding ->
+        if (posts.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Nenhuma postagem ainda...")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(padding),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(posts) { post -> PostItem(post) }
+            }
+        }
     }
+}
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Indigo950,
-                        Blue700,
-                        Cyan500
-                    )
-                )
-            )
+@Composable
+fun PostItem(post: Post) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            if (posts.isEmpty()) {
-                item {
-                    Card(
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp)
-                        ) {
-                            Text(
-                                text = "Ainda nao ha publicacoes.",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "Use o botao Novo para criar a primeira.",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(Modifier.size(40.dp).clip(CircleShape), color = MaterialTheme.colorScheme.primaryContainer) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(post.userName.take(1).uppercase(), fontWeight = FontWeight.Bold)
                     }
                 }
+                Spacer(Modifier.width(12.dp))
+                Text(post.userName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
 
-            items(posts) { post ->
-                Card(
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text(
-                            text = post.userName,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+            if (post.text.isNotBlank()) {
+                Text(post.text, Modifier.padding(vertical = 8.dp))
+            }
 
-                        Text(
-                            text = post.text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        if (post.imageBase64.isNotEmpty()) {
-                            val bitmap = ImageUtils.base64ToBitmap(post.imageBase64)
-                            Card(
-                                shape = RoundedCornerShape(20.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Slate100
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    bitmap = bitmap.asImageBitmap(),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(220.dp)
-                                )
-                            }
-                        }
-                    }
+            if (post.imageBase64.isNotBlank()) {
+                ImageUtils.base64ToBitmapOrNull(post.imageBase64)?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }
